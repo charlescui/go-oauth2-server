@@ -35,3 +35,8 @@ test-with-coverage:
 
 ci:
 	bash -c 'docker-compose -f docker-compose.test.yml -p go_oauth2_server_ci up --build --abort-on-container-exit --exit-code-from sut'
+
+product: 
+	docker build -t go-oauth2-server:latest .
+	docker tag go-oauth2-server registry.cn-shenzhen.aliyuncs.com/zp-repository/go-oauth2-server
+	docker push registry.cn-shenzhen.aliyuncs.com/zp-repository/go-oauth2-server

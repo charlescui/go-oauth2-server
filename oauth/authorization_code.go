@@ -2,6 +2,8 @@ package oauth
 
 import (
 	"errors"
+	"log"
+	"net/url"
 	"time"
 
 	"github.com/RichardKnop/go-oauth2-server/models"
@@ -39,8 +41,21 @@ func (s *Service) getValidAuthorizationCode(code, redirectURI string, client *mo
 		return nil, ErrAuthorizationCodeNotFound
 	}
 
+	log.Printf("redirectURI: %s, authorizationCode: %s \n", redirectURI, authorizationCode.RedirectURI.String)
+	u, err := url.Parse(redirectURI)
+	if err != nil {
+		return nil, ErrInvalidRedirectURI
+	}
+	au, err := url.Parse(authorizationCode.RedirectURI.String)
+	if err != nil {
+		return nil, ErrInvalidRedirectURI
+	}
 	// Redirect URI must match if it was used to obtain the authorization code
-	if redirectURI != authorizationCode.RedirectURI.String {
+	if u.Scheme != au.Scheme {
+		return nil, ErrInvalidRedirectURI
+	} else if u.Host != au.Host {
+		return nil, ErrInvalidRedirectURI
+	} else if u.Path != au.Path {
 		return nil, ErrInvalidRedirectURI
 	}
 
